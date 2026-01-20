@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Hoorain Cosmetics</title>
+
+<style>
+body{margin:0;font-family:Arial;background:#fdecef}
+header{background:#c2185b;color:#fff;padding:15px;text-align:center}
+nav{display:flex;justify-content:space-around;background:#fff;padding:10px}
+nav button{border:none;background:none;font-weight:bold;color:#c2185b}
+section{display:none;padding:15px}
+.card{background:#fff;padding:15px;border-radius:8px;margin-bottom:10px}
+input,select,button{width:100%;padding:8px;margin:5px 0}
+button{background:#c2185b;color:#fff;border:none;border-radius:5px}
+table{width:100%;border-collapse:collapse}
+td,th{border:1px solid #ccc;padding:5px;text-align:center}
+</style>
+</head>
+
+<body>
+
+<header>
+<h2>Hoorain Cosmetics</h2>
+<p>📞 0303-4141011</p>
+</header>
+
+<!-- LOGIN -->
+<section id="login">
+<h3>Login</h3>
+<input id="user" placeholder="Username">
+<input id="pass" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
+</section>
+
+<!-- APP -->
+<section id="app">
+
+<nav>
+<button onclick="show('dash')">Dashboard</button>
+<button onclick="show('prod')">Products</button>
+<button onclick="show('sale')">Sales</button>
+<button onclick="logout()">Logout</button>
+</nav>
+
+<!-- DASHBOARD -->
+<div id="dash" class="card">
+<h3>Dashboard</h3>
+<p>Today Sale: Rs <span id="today">0</span></p>
+<p>Total Products: <span id="totalProd">0</span></p>
+</div>
+
+<!-- PRODUCTS -->
+<div id="prod" class="card">
+<h3>Add Product</h3>
+<input id="pname" placeholder="Product name">
+<input id="pprice" placeholder="Price">
+<input id="pqty" placeholder="Qty">
+<button onclick="addProduct()">Add</button>
+
+<table>
+<thead><tr><th>Name</th><th>Price</th><th>Qty</th></tr></thead>
+<tbody id="plist"></tbody>
+</table>
+</div>
+
+<!-- SALES -->
+<div id="sale" class="card">
+<h3>Create Sale</h3>
+<select id="sprod"></select>
+<input id="sqty" placeholder="Qty">
+<button onclick="addSale()">Add to Invoice</button>
+
+<table>
+<thead><tr><th>Item</th><th>Qty</th><th>Total</th></tr></thead>
+<tbody id="invoice"></tbody>
+</table>
+
+<h3>Total: Rs <span id="gtotal">0</span></h3>
+<button onclick="window.print()">Print Invoice</button>
+</div>
+
+</section>
+
+<script>
+const users=[
+{u:"admin",p:"1234"},
+{u:"user1",p:"1111"},
+{u:"user2",p:"2222"}
+];
+
+let products=JSON.parse(localStorage.getItem("prod")||"[]");
+let sales=[];
+
+function login(){
+let u=user.value,p=pass.value;
+if(users.find(x=>x.u==u && x.p==p)){
+localStorage.setItem("login","1");
+login.style.display="none";
+app.style.display="block";
+load();
+}else alert("Wrong login");
+}
+
+function logout(){
+localStorage.removeItem("login");
+location.reload();
+}
+
+function show(id){
+dash.style.display=prod.style.display=sale.style.display="none";
+document.getElementById(id).style.display="block";
+}
+
+function addProduct(){
+products.push({n:pname.value,pr:+pprice.value,q:+pqty.value});
+localStorage.setItem("prod",JSON.stringify(products));
+load();
+}
+
+function load(){
+plist.innerHTML="";
+sprod.innerHTML="";
+products.forEach((p,i)=>{
+plist.innerHTML+=`<tr><td>${p.n}</td><td>${p.pr}</td><td>${p.q}</td></tr>`;
+sprod.innerHTML+=`<option value="${i}">${p.n} - Rs ${p.pr}</option>`;
+});
+totalProd.innerText=products.length;
+show("dash");
+}
+
+function addSale(){
+let p=products[sprod.value];
+let q=+sqty.value;
+let t=p.pr*q;
+sales.push(t);
+invoice.innerHTML+=`<tr><td>${p.n}</td><td>${q}</td><td>${t}</td></tr>`;
+gtotal.innerText=sales.reduce((a,b)=>a+b,0);
+today.innerText=gtotal.innerText;
+}
+
+if(localStorage.getItem("login")){
+login.style.display="none";
+app.style.display="block";
+load();
+}else{
+login.style.display="block";
+}
+</script>
+
+</body>
+</html>
